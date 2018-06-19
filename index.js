@@ -2,7 +2,7 @@ let SerialPort = require('serialport');
 let app = require('express')()
 let Linear_Sensor = require('./LinearSensor')
 
-let serialport = new SerialPort('COM3', {
+let serialport = new SerialPort('COM7', {
     baudRate: 1200,
     parity: 'even'
 });
@@ -14,22 +14,30 @@ let sensor_array = [new Linear_Sensor("Potenciômetro 1", " A", 0, 5000),
 let buffer = "";
 
 function includeRead(data) {
+    let saved = "Leitura inválida"
+
     sensor_array.filter(sensor => {
-        if (buffer.includes(sensor.end_indicator)) {
-            sensor.include_read(buffer)
-            //console.log(sensor.getReads())
+        if (data.includes(sensor.end_indicator)) {
+            if(sensor.include_read(data))
+                saved = sensor.name.toString();
         }
     })
 
-    buffer = ""
+    console.log(saved + ": " + JSON.stringify(data));
 }
 
 serialport.on('data', function (data) {
     if (data.toString('utf8') == '\n') {
-        includeRead(data)
+        includeRead(buffer.trim())
+        buffer = "";
     }
 
-    else
+    else if (buffer.length >= 20) {
+        console.log("Ruído: " + buffer)
+        buffer = ""
+    }
+
+    else 
         buffer += data.toString('utf8')
 });
 

@@ -7,6 +7,8 @@
 #use delay(crystal=16000000)
 #use rs232(baud=1200,PARITY=E,UART1,stream=PORT1)
 
+// 8 bits por baud
+
 
 void main()
 {

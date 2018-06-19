@@ -1,5 +1,5 @@
 Number.prototype.map = function (in_min, in_max, out_min, out_max) {
-    return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    return ((this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min).toFixed(0);
 }
 
 module.exports = class Linear_Sensor {
@@ -22,13 +22,21 @@ module.exports = class Linear_Sensor {
      * @memberof Linear_Sensor
      */
     include_read(read) {
+        let or_read = read;
+
         read = read.replace(this.end_indicator, "").trim()
         read = Number(read)
+        if (isNaN(read)) {
+            return false
+        }
+
         read = read.map(this.min_read, this.max_read, this.min_value, this.max_value)
         this.reads.push(read)
 
         if (this.reads.length > this.buffer_length)
             this.reads.splice(1, 1)
+        
+        return true
     }
 
     getReads() {
